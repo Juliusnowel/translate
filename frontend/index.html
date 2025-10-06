@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML Translator (English → Korean)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #fafafa;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .container {
+      display: flex;
+      gap: 40px;
+      width: 90%;
+      max-width: 1200px;
+    }
+
+    .panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    textarea, .output-box {
+      width: 100%;
+      height: 320px;
+      font-family: monospace;
+      font-size: 15px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 15px;
+      background: #fff;
+      resize: none;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+
+    .output-box {
+      background: #f7f7f7;
+      border-radius: 15px;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 15px;
+      gap: 15px;
+      width: 100%;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background 0.2s;
+    }
+
+    #translateBtn {
+      background: #007bff;
+      width: 150px;
+    }
+
+    #translateBtn:hover {
+      background: #0056b3;
+    }
+
+    #copyBtn {
+      background: #28a745;
+      width: 100px;
+    }
+
+    #copyBtn:hover {
+      background: #1e7e34;
+    }
+  </style>
+</head>
+<body>
+  <h1>HTML Translator</h1>
+  <div class="container">
+    <!-- Left Panel -->
+    <div class="panel">
+      <h3>English</h3>
+      <textarea id="inputText" placeholder="Paste your HTML here..."></textarea>
+      <div class="btn-row">
+        <button id="translateBtn">Translate</button>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="panel">
+      <h3>Korean</h3>
+      <div id="outputText" class="output-box"></div>
+      <div class="btn-row">
+        <button id="copyBtn">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Send text to local Free Translate API
+    async function translateText(txt) {
+      const res = await fetch("http://127.0.0.1:8000/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: txt, to: "ko" })
+      });
+      const data = await res.json();
+      return data.translatedText || "";
+    }
+
+    // Translate visible text + alt + placeholder + title attributes
+    async function translateHTML(html) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(`<div>${html}</div>`, "text/html");
+      const wrapper = doc.body.firstChild;
+
+      async function walk(node) {
+        // Translate text content
+        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+          node.textContent = await translateText(node.textContent.trim());
+        }
+
+        // Translate key attributes
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const attrsToTranslate = ["alt", "placeholder", "title", "aria-label"];
+          for (const attr of attrsToTranslate) {
+            if (node.hasAttribute(attr) && node.getAttribute(attr).trim()) {
+              const original = node.getAttribute(attr).trim();
+              const translated = await translateText(original);
+              node.setAttribute(attr, translated);
+            }
+          }
+        }
+
+        // Recurse
+        for (const child of node.childNodes) {
+          await walk(child);
+        }
+      }
+
+      await walk(wrapper);
+      return wrapper.innerHTML;
+    }
+
+    // Handle Translate button
+    document.getElementById("translateBtn").onclick = async () => {
+      const html = document.getElementById("inputText").value.trim();
+      if (!html) return alert("Please enter HTML content.");
+      const outBox = document.getElementById("outputText");
+      outBox.innerHTML = "<em>Translating...</em>";
+      try {
+        const result = await translateHTML(html);
+        outBox.innerText = result || "[No translatable text found]";
+      } catch (err) {
+        console.error(err);
+        outBox.innerText = "Error translating.";
+      }
+    };
+
+    // Handle Copy button
+    document.getElementById("copyBtn").onclick = async () => {
+      const text = document.getElementById("outputText").innerText;
+      await navigator.clipboard.writeText(text);
+      const btn = document.getElementById("copyBtn");
+      btn.textContent = "Copied!";
+      setTimeout(() => (btn.textContent = "Copy"), 1500);
+    };
+  </script>
+
+</body>
+</html>
