@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta http-equiv="Referrer-Policy" content="no-referrer">
   <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
   <meta http-equiv="Content-Security-Policy"
@@ -13,54 +13,210 @@
             frame-ancestors 'none';
             base-uri 'self';
             form-action 'self';">
-  <title>HTML Translator (EN → KO)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HTML Translator</title>
+
   <style>
-    body { font-family: Arial, sans-serif; margin: 40px; display: flex; flex-direction: column; align-items: center; background: #fafafa; }
-    h1 { margin-bottom: 20px; font-weight: 600; color: #333; }
-    .container { display: flex; gap: 40px; width: 90%; max-width: 1200px; }
-    .panel { flex: 1; display: flex; flex-direction: column; align-items: center; }
-    textarea, .output-box { width: 100%; height: 320px; font-family: monospace; font-size: 15px; padding: 12px; border: 1px solid #ccc; border-radius: 15px; background: #fff; resize: none; overflow: auto; white-space: pre-wrap; }
-    .output-box { background: #f7f7f7; border-radius: 15px; }
-    .btn-row { display: flex; justify-content: center; margin-top: 15px; gap: 15px; width: 100%; }
-    button { padding: 10px 20px; border: none; border-radius: 4px; color: white; cursor: pointer; font-size: 15px; transition: background .2s; }
-    #translateBtn { background: #007bff; width: 150px; } #translateBtn:hover { background: #0056b3; }
-    #copyBtn { background: #28a745; width: 100px; } #copyBtn:hover { background: #1e7e34; }
-    .hdr { display:flex; align-items:center; gap:10px; }
-    select { padding:6px 10px; border-radius:6px; }
+    /* Theme tokens (edit the accents to taste) */
+    :root{
+      --bg-1: #0f1724;         /* very dark base */
+      --bg-2: #132032;         /* subtle gradient */
+      --card: rgba(255,255,255,0.04);
+      --card-2: rgba(255,255,255,0.03);
+      --muted: rgba(255,255,255,0.65);
+      --text: #ecf6ff;
+      --accent-1: #4f46e5;     /* indigo */
+      --accent-2: #06b6d4;     /* cyan */
+      --success: #16a34a;
+      --glass-border: rgba(255,255,255,0.06);
+      --radius: 14px;
+      --panel-gap: 28px;
+    }
+
+    /* Reset + page */
+    * { box-sizing: border-box; }
+    html,body { height:100%; margin:0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:var(--text); }
+    body {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:36px;
+      background: linear-gradient(180deg,var(--bg-1), var(--bg-2));
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    h1{ margin:0 0 22px 0; font-size:32px; letter-spacing:-0.01em; font-weight:700; color:var(--text); text-align:center; }
+    .subtitle { color:var(--muted); margin-bottom:18px; font-size:13px; }
+
+    /* Layout: grid ensures perfect alignment & symmetric spacing */
+    .container {
+      width: min(1200px, 94%);
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--panel-gap);
+      align-items:start; /* important — keeps headers baseline aligned */
+    }
+
+    /* Panel card */
+    .panel {
+      background: linear-gradient(180deg, var(--card), var(--card-2));
+      border: 1px solid var(--glass-border);
+      border-radius: calc(var(--radius));
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      min-height: 460px; /* guarantees equal visual height for both panels */
+      box-shadow: 0 6px 24px rgba(2,6,23,0.45), inset 0 1px 0 rgba(255,255,255,0.02);
+      transition: transform .18s ease;
+    }
+    .panel:hover { transform: translateY(-4px); }
+
+    /* Header row inside each panel — consistent height prevents misalignment */
+    .panel-header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding-bottom:10px;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+      margin-bottom: 12px;
+      min-height: 48px; /* equal header height across panels */
+    }
+    .panel-header h3 { margin:0; font-size:18px; color:var(--text); font-weight:600; }
+    select {
+      background: rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.06);
+      color:var(--text);
+      padding:6px 10px;
+      border-radius:8px;
+      font-size:13px;
+      outline:none;
+      min-width:150px;
+    }
+
+    /* Text area and output look consistent and aligned */
+    textarea, .output-box {
+      width:100%;
+      height:320px;
+      padding:14px;
+      border-radius:12px;
+      resize: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+      font-size:15px;
+      line-height:1.45;
+      color:var(--text);
+      background: rgba(0,0,0,0.24);
+      border: 1px solid rgba(255,255,255,0.04);
+      overflow:auto;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.45);
+    }
+
+    /* Make output visually distinct (lighter text + subtle accent on left) */
+    .output-box {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    }
+
+    /* Buttons row anchors at bottom so strong vertical rhythm */
+    .btn-row {
+      display:flex;
+      justify-content:center;
+      gap:14px;
+      margin-top:16px;
+    }
+    .controls {
+      display:flex;
+      justify-content:center;
+      gap:12px;
+    }
+
+    button {
+      padding:10px 20px;
+      border-radius:10px;
+      border: none;
+      color:white;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+    }
+    button:active { transform: translateY(1px); }
+
+    #translateBtn {
+      background: linear-gradient(90deg,var(--accent-1), var(--accent-2));
+      min-width:150px;
+    }
+    #translateBtn:hover { filter:brightness(1.05); box-shadow: 0 10px 30px rgba(79,70,229,0.15); }
+
+    #copyBtn {
+      background: linear-gradient(90deg,#10b981,#059669);
+      min-width:110px;
+    }
+    #copyBtn:hover { filter:brightness(1.03); box-shadow: 0 10px 30px rgba(6,182,212,0.12); }
+
+    /* Small helpers */
+    .muted { color:var(--muted); font-size:13px; text-align:center; margin-top:10px; }
+    .footer { margin-top:22px; color:var(--muted); font-size:13px; text-align:center; width:100%; max-width:1200px; }
+
+    /* Responsive fallback */
+    @media (max-width:880px){
+      .container{ grid-template-columns:1fr; gap:18px; }
+      .panel { min-height:420px; }
+    }
   </style>
 </head>
 <body>
-  <h1 id="pageTitle">HTML Translator</h1>
+  <h1>HTML Translator</h1>
+  <div class="subtitle">Left stays English. Choose a target language on the right — fast, dark UI.</div>
+
   <div class="container">
-    <div class="panel">
-      <div class="hdr"><h3 style="margin:0;">English</h3></div>
-      <textarea id="inputText" placeholder="Paste your HTML here..."></textarea>
+    <div class="panel" id="leftPanel">
+      <div class="panel-header">
+        <h3>English</h3>
+        <div class="muted">Source</div>
+      </div>
+
+      <textarea id="inputText" placeholder="Paste your HTML here...">hello</textarea>
+
       <div class="btn-row">
         <button id="translateBtn">Translate</button>
       </div>
     </div>
 
-    <div class="panel">
-      <div class="hdr">
-        <h3 id="targetLabel" style="margin:0;">Korean</h3>
+    <div class="panel" id="rightPanel">
+      <div class="panel-header">
+        <h3 id="targetLabel">Japanese</h3>
         <select id="targetLang" aria-label="Target language">
-          <option value="ko" selected>Korean (KO)</option>
-          <option value="ja">Japanese (JA)</option>
-          <!-- add more later: <option value="zh">Chinese (ZH)</option> etc. -->
+          <option value="ko">Korean (KO)</option>
+          <option value="ja" selected>Japanese (JA)</option>
+          <option value="zh">Chinese (ZH)</option>
+          <option value="es">Spanish (ES)</option>
         </select>
       </div>
-      <div id="outputText" class="output-box"></div>
+
+      <div id="outputText" class="output-box" aria-live="polite" role="region">こんにちは</div>
+
       <div class="btn-row">
         <button id="copyBtn">Copy</button>
       </div>
     </div>
   </div>
 
+  <div class="footer">Tip: long inputs are chunked and cached to reduce rate-limit failures.</div>
+
   <script>
     // ---- Config ----
     const SOURCE = "en";
-    const LANGS = { ko: "Korean", ja: "Japanese" }; // extend as needed
     let TARGET = "ko";
+    const LANGS = { ko: "Korean", ja: "Japanese", zh: "Chinese", es: "Spanish" };
+    const selector = document.getElementById('targetLang');
+    const targetLabel = document.getElementById('targetLabel');
+
+    selector.addEventListener('change', () => {
+      targetLabel.textContent = LANGS[selector.value] || selector.value.toUpperCase();
+      document.title = `HTML Translator (EN → ${targetLabel.textContent})`;
+      document.getElementById('outputText').textContent = ''; // clear stale content
+    });
 
     // ---- Providers ----
     const LT_ENDPOINTS = [
