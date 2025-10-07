@@ -67,14 +67,36 @@
 
     // Provider 2: MyMemory (free, CORS-friendly, lighter quality but works)
     async function myMemoryTranslate(text) {
-      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${SOURCE}|${TARGET}`;
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${SOURCE}|${TARGET}&mtonly=1`;
+
       const r = await fetch(url);
       if (!r.ok) throw new Error("MyMemory HTTP " + r.status);
       const data = await r.json();
-      const out = data?.responseData?.translatedText || "";
-      if (!out) throw new Error("MyMemory empty");
-      return out;
+
+      // 1) Prefer exact segment matches with good scores
+      const src = text.trim();
+      const matches = Array.isArray(data?.matches) ? data.matches : [];
+      const exact = matches
+        .filter(m => (m.segment || "").trim() === src)
+        .sort((a,b) => (b.match||0) - (a.match||0));
+
+      if (exact.length && (exact[0].match ?? 0) >= 0.80 && exact[0].translation) {
+        return exact[0].translation;
+      }
+
+      // 2) Otherwise prefer an MT candidate (not crowd memory) if present
+      const mt = matches
+        .filter(m => m.translation && (m.reference || "").toLowerCase() === "machine translation")
+        .sort((a,b) => (b.match||0) - (a.match||0));
+      if (mt.length) return mt[0].translation;
+
+      // 3) Fall back to responseData but only if it’s not empty
+      const fallback = data?.responseData?.translatedText;
+      if (fallback && fallback.trim()) return fallback;
+
+      throw new Error("MyMemory returned low-quality/no match");
     }
+
 
     // Smart single-phrase translate with fallback + tiny cache
     const cache = new Map();
