@@ -14,7 +14,7 @@
             base-uri 'self';
             form-action 'self';">
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>HTML Translator</title>
+  <h1 id="pageTitle">HTML Translator</h1>
 
   <style>
     /* Theme tokens (edit the accents to taste) */
@@ -187,14 +187,14 @@
       <div class="panel-header">
         <h3 id="targetLabel">Japanese</h3>
         <select id="targetLang" aria-label="Target language">
-          <option value="ko">Korean (KO)</option>
-          <option value="ja" selected>Japanese (JA)</option>
+          <option value="ko" selected>Korean (KO)</option>
+          <option value="ja">Japanese (JA)</option>
           <option value="zh">Chinese (ZH)</option>
           <option value="es">Spanish (ES)</option>
         </select>
       </div>
 
-      <div id="outputText" class="output-box" aria-live="polite" role="region">こんにちは</div>
+      <div id="outputText" class="output-box" aria-live="polite" role="region"></div>
 
       <div class="btn-row">
         <button id="copyBtn">Copy</button>
@@ -346,9 +346,7 @@
     }
 
     // ---- UI wiring ----
-    const targetLabel = document.getElementById("targetLabel");
     const pageTitle   = document.getElementById("pageTitle");
-    const selector    = document.getElementById("targetLang");
 
     function syncHeadings() {
       const name = LANGS[TARGET] || TARGET.toUpperCase();
