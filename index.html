@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     /* Theme tokens (edit the accents to taste) */
-    :root{
+    :root {
       --bg-1: #0f1724;         /* very dark base */
       --bg-2: #132032;         /* subtle gradient */
       --card: rgba(255,255,255,0.04);
@@ -44,7 +44,7 @@
       -moz-osx-font-smoothing:grayscale;
     }
 
-    h1{ margin:0 0 22px 0; font-size:32px; letter-spacing:-0.01em; font-weight:700; color:var(--text); text-align:center; }
+    h1 { margin:0 0 22px 0; font-size:32px; letter-spacing:-0.01em; font-weight:700; color:var(--text); text-align:center; }
     .subtitle { color:var(--muted); margin-bottom:18px; font-size:13px; }
 
     /* Layout: grid ensures perfect alignment & symmetric spacing */
@@ -53,7 +53,7 @@
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--panel-gap);
-      align-items:start; /* important — keeps headers baseline aligned */
+      align-items:start; /* keep headers baseline aligned */
     }
 
     /* Panel card */
@@ -70,7 +70,7 @@
     }
     .panel:hover { transform: translateY(-4px); }
 
-    /* Header row inside each panel — consistent height prevents misalignment */
+    /* Equal header height keeps panels aligned */
     .panel-header {
       display:flex;
       align-items:center;
@@ -126,124 +126,135 @@
     }
 
     /* Custom select: visually consistent and fully stylable */
-    .custom-select { position: relative; display:inline-block; min-width:150px; }
-    .cs-btn {
-      display:flex; align-items:center; justify-content:space-between;
-      gap:8px;
-      width:100%;
-      background: rgba(255,255,255,0.03);
-      border:1px solid rgba(255,255,255,0.06);
-      color:var(--text);
-      padding:8px 12px;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:13px;
+    .custom-select {
+      position: relative;
+      display: inline-block;
+      min-width: 150px;
     }
-    .cs-arrow { margin-left:8px; opacity:0.92; font-size:12px; }
+    .cs-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .cs-arrow {
+      margin-left: 8px;
+      opacity: 0.92;
+      font-size: 12px;
+    }
 
     /* popup list */
     .cs-list {
-      position:absolute;
-      right:0;
-      left:0;
-      margin:8px 0 0 0;
-      padding:6px 6px;
-      list-style:none;
-      border-radius:10px;
-      background: linear-gradient(180deg,var(--bg-2),var(--bg-1));
-      border:1px solid rgba(255,255,255,0.04);
-      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
-      max-height:220px;
-      overflow:auto;
-      z-index:40;
-      display:none; /* hidden until open */
+      position: absolute;
+      right: 0;
+      left: 0;
+      margin: 8px 0 0 0;
+      padding: 6px;
+      list-style: none;
+      border-radius: 10px;
+      background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.6);
+      max-height: 220px;
+      overflow: auto;
+      z-index: 40;
+      display: none; /* hidden until open */
     }
-    .custom-select[data-open="true"] .cs-list { display:block; }
+    .custom-select[data-open="true"] .cs-list { display: block; }
 
     /* items */
     .cs-item {
-      padding:8px 10px;
-      color:var(--text);
-      border-radius:6px;
-      cursor:pointer;
-      font-size:14px;
+      padding: 8px 10px;
+      color: var(--text);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
     }
-    .cs-item[aria-selected="true"] { background: linear-gradient(90deg, rgba(79,70,229,0.18), rgba(6,182,212,0.06)); }
-    .cs-item:hover { background: rgba(255,255,255,0.03); }
+    .cs-item[aria-selected="true"] { background: linear-gradient(90deg, rgba(79, 70, 229, 0.18), rgba(6, 182, 212, 0.06)); }
+    .cs-item:hover { background: rgba(255, 255, 255, 0.03); }
 
     /* Text area and output look consistent and aligned */
-    textarea, .output-box {
-      width:100%;
-      height:320px;
-      padding:14px;
-      border-radius:12px;
+    textarea,
+    .output-box {
+      width: 100%;
+      height: 320px;
+      padding: 14px;
+      border-radius: 12px;
       resize: none;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
-      font-size:15px;
-      line-height:1.45;
-      color:var(--text);
-      background: rgba(0,0,0,0.24);
-      border: 1px solid rgba(255,255,255,0.04);
-      overflow:auto;
-      box-shadow: inset 0 2px 8px rgba(0,0,0,0.45);
+      font-size: 15px;
+      line-height: 1.45;
+      color: var(--text);
+      background: rgba(0, 0, 0, 0.24);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      overflow: auto;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45);
     }
 
     /* Make output visually distinct (lighter text + subtle accent on left) */
     .output-box {
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
     }
 
     /* Buttons row anchors at bottom so strong vertical rhythm */
     .btn-row {
-      display:flex;
-      justify-content:center;
-      gap:14px;
-      margin-top:16px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 16px;
     }
     .controls {
-      display:flex;
-      justify-content:center;
-      gap:12px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
     }
 
     button {
-      padding:10px 20px;
-      border-radius:10px;
+      padding: 10px 20px;
+      border-radius: 10px;
       border: none;
-      color:white;
-      cursor:pointer;
-      font-weight:600;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.45);
-      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+      transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
     }
     button:active { transform: translateY(1px); }
 
     #translateBtn {
-      background: linear-gradient(90deg,var(--accent-1), var(--accent-2));
-      min-width:150px;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+      min-width: 150px;
     }
-    #translateBtn:hover { filter:brightness(1.05); box-shadow: 0 10px 30px rgba(79,70,229,0.15); }
+    #translateBtn:hover { filter: brightness(1.05); box-shadow: 0 10px 30px rgba(79, 70, 229, 0.15); }
 
     #copyBtn {
-      background: linear-gradient(90deg,#10b981,#059669);
-      min-width:110px;
+      background: linear-gradient(90deg, #10b981, #059669);
+      min-width: 110px;
     }
-    #copyBtn:hover { filter:brightness(1.03); box-shadow: 0 10px 30px rgba(6,182,212,0.12); }
+    #copyBtn:hover { filter: brightness(1.03); box-shadow: 0 10px 30px rgba(6, 182, 212, 0.12); }
 
     /* Small helpers */
-    .muted { color:var(--muted); font-size:13px; text-align:center; margin-top:10px; }
-    .footer { margin-top:22px; color:var(--muted); font-size:13px; text-align:center; width:100%; max-width:1200px; }
+    .muted { color: var(--muted); font-size: 13px; text-align: center; margin-top: 10px; }
+    .footer { margin-top: 22px; color: var(--muted); font-size: 13px; text-align: center; width: 100%; max-width: 1200px; }
 
     /* Responsive fallback */
-    @media (max-width:880px){
-      .container{ grid-template-columns:1fr; gap:18px; }
-      .panel { min-height:420px; }
+    @media (max-width: 880px) {
+      .container { grid-template-columns: 1fr; gap: 18px; }
+      .panel { min-height: 420px; }
     }
   </style>
 </head>
 <body>
   <h1>HTML Translator</h1>
-  <div class="subtitle">Left stays English. Choose a target language on the right — fast, dark UI.</div>
+  <div class="subtitle">Left stays English. Choose a target language on the right - fast, dark UI.</div>
 
   <div class="container">
     <div class="panel" id="leftPanel">
@@ -261,18 +272,18 @@
 
     <div class="panel" id="rightPanel">
       <div class="panel-header">
-        <h3 id="targetLabel">Japanese</h3>
+        <h3 id="targetLabel">Korean</h3>
         <div class="custom-select" id="customSelect" data-open="false" aria-haspopup="listbox">
           <button class="cs-btn" id="csBtn" aria-expanded="false" aria-controls="csList">
             <span id="csLabel">Korean (KO)</span>
-            <span class="cs-arrow">▾</span>
+            <span class="cs-arrow">&#9662;</span>
           </button>
 
           <ul class="cs-list" id="csList" role="listbox" tabindex="-1" aria-hidden="true">
-            <li role="option" data-value="ko" class="cs-item" aria-selected="true">Korean (KO)</li>
-            <li role="option" data-value="ja" class="cs-item">Japanese (JA)</li>
-            <li role="option" data-value="zh" class="cs-item">Chinese (ZH)</li>
-            <li role="option" data-value="es" class="cs-item">Spanish (ES)</li>
+            <li role="option" data-value="ko" class="cs-item" aria-selected="true" tabindex="0">Korean (KO)</li>
+            <li role="option" data-value="ja" class="cs-item" tabindex="0">Japanese (JA)</li>
+            <li role="option" data-value="zh" class="cs-item" tabindex="0">Chinese (ZH)</li>
+            <li role="option" data-value="es" class="cs-item" tabindex="0">Spanish (ES)</li>
           </ul>
 
           <!-- hidden value that your existing code can still read -->
@@ -291,21 +302,10 @@
   <div class="footer">Tip: long inputs are chunked and cached to reduce rate-limit failures.</div>
 
   <script>
-    // ---- Config ----
-    const SOURCE = "en";
-    let TARGET = "ko";
-    const LANGS = { ko: "Korean", ja: "Japanese", zh: "Chinese", es: "Spanish" };
-    const selector = document.getElementById('targetLang');
-    const targetLabel = document.getElementById('targetLabel');
-
-    selector.addEventListener('change', () => {
-      targetLabel.textContent = LANGS[selector.value] || selector.value.toUpperCase();
-      document.title = `HTML Translator (EN → ${targetLabel.textContent})`;
-      document.getElementById('outputText').textContent = ''; // clear stale content
-    });
-
-    // ---- Providers ----
-    const LT_ENDPOINTS = [
+    const SOURCE_LANG = "en";
+    const LANG_LABELS = { ko: "Korean", ja: "Japanese", zh: "Chinese", es: "Spanish" };
+    const TRANSLATABLE_ATTRIBUTES = ["alt", "placeholder", "title", "aria-label"];
+    const LIBRE_TRANSLATE_ENDPOINTS = [
       "https://libretranslate.com/translate",
       "https://translate.astian.org/translate",
       "https://libretranslate.de/translate",
@@ -315,88 +315,186 @@
       "https://libretranslate.pussthecat.org/translate"
     ];
 
+    const elements = {
+      input: document.getElementById("inputText"),
+      output: document.getElementById("outputText"),
+      translateButton: document.getElementById("translateBtn"),
+      copyButton: document.getElementById("copyBtn"),
+      targetLabel: document.getElementById("targetLabel"),
+      hiddenTarget: document.getElementById("targetLang"),
+      customSelect: document.getElementById("customSelect"),
+      customButton: document.getElementById("csBtn"),
+      customList: document.getElementById("csList"),
+      customLabel: document.getElementById("csLabel")
+    };
+
+    let targetLang = elements.hiddenTarget.value || "ko";
+    let customItems = [];
+
+    function labelFor(lang) {
+      return LANG_LABELS[lang] || lang.toUpperCase();
+    }
+
+    function updateDocumentTitle(label) {
+      document.title = `HTML Translator (EN -> ${label.slice(0, 2).toUpperCase()})`;
+    }
+
+    function updateCustomSelectState(lang) {
+      if (!customItems.length) {
+        return lang;
+      }
+
+      let selected = customItems.find(item => item.dataset.value === lang);
+      if (!selected) {
+        selected = customItems[0];
+        lang = selected.dataset.value;
+      }
+
+      customItems.forEach(item => {
+        const isSelected = item === selected;
+        item.setAttribute("aria-selected", isSelected ? "true" : "false");
+        item.tabIndex = isSelected ? 0 : -1;
+      });
+
+      if (selected) {
+        elements.customLabel.textContent = selected.textContent;
+      }
+
+      return lang;
+    }
+
+    function updateTarget(lang) {
+      if (!lang) {
+        return;
+      }
+
+      const resolvedLang = updateCustomSelectState(lang);
+      targetLang = resolvedLang;
+      elements.hiddenTarget.value = resolvedLang;
+
+      const label = labelFor(resolvedLang);
+      elements.targetLabel.textContent = label;
+      updateDocumentTitle(label);
+      elements.output.textContent = "";
+    }
+
     async function ltTranslate(text) {
-      const payload = { q: text, source: SOURCE, target: TARGET, format: "text" };
+      const payload = { q: text, source: SOURCE_LANG, target: targetLang, format: "text" };
       let lastErr;
-      for (const url of LT_ENDPOINTS) {
+
+      for (const url of LIBRE_TRANSLATE_ENDPOINTS) {
         let delay = 250;
-        for (let i = 0; i < 3; i++) {
+
+        for (let attempt = 0; attempt < 3; attempt++) {
           try {
-            const r = await fetch(url, {
+            const response = await fetch(url, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload)
             });
-            if (r.status === 429) { await new Promise(s => setTimeout(s, delay)); delay *= 2; continue; }
-            if (!r.ok) throw new Error(url + " -> " + r.status);
-            const data = await r.json();
-            if (data?.translatedText) return data.translatedText;
+
+            if (response.status === 429) {
+              await new Promise(resolve => setTimeout(resolve, delay));
+              delay *= 2;
+              continue;
+            }
+
+            if (!response.ok) {
+              throw new Error(`${url} -> ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data?.translatedText) {
+              return data.translatedText;
+            }
+
             throw new Error("No translatedText");
-          } catch (e) { lastErr = e; await new Promise(s => setTimeout(s, delay)); delay *= 2; }
+          } catch (error) {
+            lastErr = error;
+            await new Promise(resolve => setTimeout(resolve, delay));
+            delay *= 2;
+          }
         }
       }
+
       throw lastErr || new Error("LibreTranslate failed");
     }
 
     async function myMemoryTranslate(text) {
-      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${SOURCE}|${TARGET}&mtonly=1`;
-      const r = await fetch(url);
-      if (!r.ok) throw new Error("MyMemory HTTP " + r.status);
-      const data = await r.json();
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${SOURCE_LANG}|${targetLang}&mtonly=1`;
+      const response = await fetch(url);
 
+      if (!response.ok) {
+        throw new Error(`MyMemory HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
       const src = text.trim();
       const matches = Array.isArray(data?.matches) ? data.matches : [];
-      const exact = matches.filter(m => (m.segment || "").trim() === src)
-                           .sort((a,b) => (b.match||0) - (a.match||0));
-      if (exact.length && (exact[0].match ?? 0) >= 0.80 && exact[0].translation) return exact[0].translation;
 
-      const mt = matches.filter(m => m.translation && (m.reference || "").toLowerCase() === "machine translation")
-                        .sort((a,b) => (b.match||0) - (a.match||0));
-      if (mt.length) return mt[0].translation;
+      const exact = matches
+        .filter(match => (match.segment || "").trim() === src)
+        .sort((a, b) => (b.match || 0) - (a.match || 0));
+      if (exact.length && (exact[0].match ?? 0) >= 0.8 && exact[0].translation) {
+        return exact[0].translation;
+      }
+
+      const machine = matches
+        .filter(match => match.translation && (match.reference || "").toLowerCase() === "machine translation")
+        .sort((a, b) => (b.match || 0) - (a.match || 0));
+      if (machine.length) {
+        return machine[0].translation;
+      }
 
       const fallback = data?.responseData?.translatedText;
-      if (fallback && fallback.trim()) return fallback;
+      if (fallback && fallback.trim()) {
+        return fallback;
+      }
 
       throw new Error("MyMemory returned low-quality/no match");
     }
 
-    // ---- Cache + translate ----
     const cache = new Map();
     async function translateOne(text) {
-      const key = `${SOURCE}→${TARGET}::${text.normalize('NFC')}`;
-      if (cache.has(key)) return cache.get(key);
+      const cacheKey = `${SOURCE_LANG}->${targetLang}::${text.normalize("NFC")}`;
+      if (cache.has(cacheKey)) {
+        return cache.get(cacheKey);
+      }
+
       try {
-        const res = await ltTranslate(text);
-        cache.set(key, res);
-        return res;
-      } catch (_) {
-        const res = await myMemoryTranslate(text);
-        cache.set(key, res);
-        return res;
+        const result = await ltTranslate(text);
+        cache.set(cacheKey, result);
+        return result;
+      } catch (error) {
+        const result = await myMemoryTranslate(text);
+        cache.set(cacheKey, result);
+        return result;
       }
     }
 
     async function translateBatch(texts) {
-      const out = [];
-      for (const t of texts) out.push(await translateOne(t));
-      return out;
+      const results = [];
+      for (const text of texts) {
+        results.push(await translateOne(text));
+      }
+      return results;
     }
 
-    // ---- HTML walker ----
     async function translateHTML(html) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(`<div>${html}</div>`, "text/html");
       const wrapper = doc.body.firstElementChild;
 
       const textNodes = [];
-      const attrNodes = [];
-      const ATTRS = ["alt", "placeholder", "title", "aria-label"]; // safer: exclude "value"
+      const attributeNodes = [];
 
       const walker = doc.createTreeWalker(wrapper, NodeFilter.SHOW_ALL, {
         acceptNode(node) {
           if (node.nodeType === Node.ELEMENT_NODE) {
             const tag = node.tagName.toLowerCase();
-            if (tag === "style" || tag === "script") return NodeFilter.FILTER_REJECT;
+            if (tag === "style" || tag === "script") {
+              return NodeFilter.FILTER_REJECT;
+            }
           }
           return NodeFilter.FILTER_ACCEPT;
         }
@@ -407,134 +505,132 @@
 
         if (node.nodeType === Node.TEXT_NODE) {
           const raw = node.textContent;
-          if (/\S/.test(raw)) textNodes.push({ node, text: raw });
-        }
-
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          for (const a of ATTRS) {
-            if (node.hasAttribute(a)) {
-              const v = node.getAttribute(a).trim();
-              if (v) attrNodes.push({ el: node, attr: a, text: v });
+          if (/\S/.test(raw)) {
+            textNodes.push({ node, text: raw });
+          }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          for (const attribute of TRANSLATABLE_ATTRIBUTES) {
+            if (node.hasAttribute(attribute)) {
+              const value = node.getAttribute(attribute).trim();
+              if (value) {
+                attributeNodes.push({ element: node, attribute, text: value });
+              }
             }
           }
         }
       }
 
-      const all = [...textNodes, ...attrNodes];
-      const translated = await translateBatch(all.map(x => x.text));
-      all.forEach((item, i) => {
-        const t = translated[i] ?? "";
-        if ("node" in item) item.node.textContent = t;
-        else item.el.setAttribute(item.attr, t);
+      const targets = [...textNodes, ...attributeNodes];
+      const translations = await translateBatch(targets.map(item => item.text));
+
+      targets.forEach((item, index) => {
+        const translatedText = translations[index] ?? "";
+        if ("node" in item) {
+          item.node.textContent = translatedText;
+        } else {
+          item.element.setAttribute(item.attribute, translatedText);
+        }
       });
 
       return wrapper.innerHTML;
     }
 
-    // ---- UI wiring ----
-    (function wireCustomSelect(){
-      const cs = document.getElementById('customSelect');
-      const btn = document.getElementById('csBtn');
-      const list = document.getElementById('csList');
-      const items = Array.from(list.querySelectorAll('.cs-item'));
-      const label = document.getElementById('csLabel');
-      const hidden = document.getElementById('targetLang');
+    function wireCustomSelect() {
+      customItems = Array.from(elements.customList.querySelectorAll(".cs-item"));
 
-      function openClose(open){
-        cs.dataset.open = open ? "true" : "false";
-        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        list.setAttribute('aria-hidden', open ? 'false' : 'true');
-        if(open) list.focus();
+      function setOpen(open) {
+        const isOpen = Boolean(open);
+        elements.customSelect.dataset.open = isOpen ? "true" : "false";
+        elements.customButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        elements.customList.setAttribute("aria-hidden", isOpen ? "false" : "true");
+
+        if (isOpen) {
+          const active = customItems.find(item => item.getAttribute("aria-selected") === "true") || customItems[0];
+          (active || elements.customList).focus();
+        }
       }
 
-      // initial selection
-      const initial = hidden.value || 'ko';
-      const initialItem = items.find(i => i.dataset.value === initial);
-      if(initialItem){
-        items.forEach(it=>it.setAttribute('aria-selected','false'));
-        initialItem.setAttribute('aria-selected','true');
-        label.textContent = initialItem.textContent;
-      }
-
-      // toggle on button
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openClose(cs.dataset.open !== "true");
+      elements.customButton.addEventListener("click", event => {
+        event.stopPropagation();
+        setOpen(elements.customSelect.dataset.open !== "true");
       });
 
-      // click on item
-      items.forEach(it=>{
-        it.addEventListener('click', (e)=>{
-          const v = it.dataset.value;
-          // update UI
-          items.forEach(x=>x.setAttribute('aria-selected','false'));
-          it.setAttribute('aria-selected','true');
-          hidden.value = v;
-          label.textContent = it.textContent;
-          openClose(false);
-          // trigger your existing change logic
-          TARGET = v;
-          if(typeof syncHeadings === 'function') syncHeadings();
-          document.getElementById('outputText').textContent = '';
+      elements.customButton.addEventListener("keydown", event => {
+        if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          setOpen(true);
+        }
+      });
+
+      document.addEventListener("click", () => setOpen(false));
+
+      customItems.forEach(item => {
+        item.addEventListener("click", event => {
+          event.preventDefault();
+          updateTarget(item.dataset.value);
+          setOpen(false);
+          elements.customButton.focus();
         });
       });
 
-      // close when clicking outside
-      document.addEventListener('click', ()=> openClose(false));
-      // keyboard: basic support
-      btn.addEventListener('keydown', (e)=>{
-        if(e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault(); openClose(true);
+      elements.customList.addEventListener("keydown", event => {
+        const currentIndex = customItems.findIndex(item => item.getAttribute("aria-selected") === "true");
+
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          const next = customItems[(currentIndex + 1) % customItems.length];
+          next.focus();
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          const prev = customItems[(currentIndex - 1 + customItems.length) % customItems.length];
+          prev.focus();
+        } else if (event.key === "Enter") {
+          const focused = document.activeElement;
+          const item = customItems.find(candidate => candidate === focused);
+          if (item) {
+            updateTarget(item.dataset.value);
+            setOpen(false);
+            elements.customButton.focus();
+          }
+        } else if (event.key === "Escape") {
+          setOpen(false);
+          elements.customButton.focus();
         }
       });
-      list.addEventListener('keydown', (e)=>{
-        const idx = items.findIndex(i=>i.getAttribute('aria-selected')==='true');
-        if(e.key === 'ArrowDown') { e.preventDefault(); const next = items[(idx+1)%items.length]; next.focus(); }
-        if(e.key === 'ArrowUp') { e.preventDefault(); const prev = items[(idx-1+items.length)%items.length]; prev.focus(); }
-        if(e.key === 'Enter') { document.activeElement.click(); }
-        if(e.key === 'Escape') { openClose(false); btn.focus(); }
-      });
-    })();
-
-    const pageTitle   = document.getElementById("pageTitle");
-
-    function syncHeadings() {
-      const name = LANGS[TARGET] || TARGET.toUpperCase();
-      targetLabel.textContent = name;
-      document.title = `HTML Translator (EN → ${name.slice(0,2).toUpperCase()})`;
     }
 
-    selector.addEventListener("change", () => {
-      TARGET = selector.value;
-      syncHeadings();
-      document.getElementById("outputText").textContent = ""; // clear old result
-    });
-
-    document.getElementById("translateBtn").onclick = async () => {
-      const html = document.getElementById("inputText").value.trim();
-      if (!html) { alert("Please enter HTML content."); return; }
-      const out = document.getElementById("outputText");
-      out.innerHTML = "<em>Translating…</em>";
-      try {
-        const res = await translateHTML(html);
-        out.textContent = res || "[No translatable text found]";
-      } catch (e) {
-        console.error(e);
-        out.textContent = "Translation failed across providers (rate limit or CORS). Try again.";
+    async function handleTranslate() {
+      const html = elements.input.value.trim();
+      if (!html) {
+        alert("Please enter HTML content.");
+        return;
       }
-    };
 
-    document.getElementById("copyBtn").onclick = async () => {
-      const text = document.getElementById("outputText").textContent;
+      elements.output.innerHTML = "<em>Translating...</em>";
+      try {
+        const result = await translateHTML(html);
+        elements.output.textContent = result || "[No translatable text found]";
+      } catch (error) {
+        console.error(error);
+        elements.output.textContent = "Translation failed across providers (rate limit or CORS). Try again.";
+      }
+    }
+
+    async function handleCopy() {
+      const text = elements.output.textContent;
       await navigator.clipboard.writeText(text);
-      const btn = document.getElementById("copyBtn");
-      btn.textContent = "Copied!";
-      setTimeout(() => (btn.textContent = "Copy"), 1500);
-    };
+      elements.copyButton.textContent = "Copied!";
+      setTimeout(() => {
+        elements.copyButton.textContent = "Copy";
+      }, 1500);
+    }
 
-    // init
-    syncHeadings();
-    
+    elements.translateButton.addEventListener("click", handleTranslate);
+    elements.copyButton.addEventListener("click", handleCopy);
+    elements.hiddenTarget.addEventListener("change", event => updateTarget(event.target.value));
+
+    wireCustomSelect();
+    updateTarget(targetLang);
   </script>
   
 </body>
