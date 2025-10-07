@@ -14,8 +14,6 @@
             base-uri 'self';
             form-action 'self';">
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <h1 id="pageTitle">HTML Translator</h1>
-
   <style>
     /* Theme tokens (edit the accents to taste) */
     :root{
@@ -95,9 +93,19 @@
       min-width:150px;
     }
 
-    option {
-      color: rgba(255,255,255,0.03);
-    }
+/* Ensure option text is readable in dark theme (supported in most modern browsers) */
+select option {
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  color: var(--text);
+  padding: 6px 8px;
+}
+
+/* Hover/selected styling inside the native dropdown where supported */
+select option:checked,
+select option:hover {
+  background: linear-gradient(90deg, rgba(79,70,229,0.18), rgba(6,182,212,0.08));
+  color: var(--text);
+}
 
     /* Text area and output look consistent and aligned */
     textarea, .output-box {
