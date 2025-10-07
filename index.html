@@ -83,48 +83,93 @@
     }
     .panel-header h3 { margin:0; font-size:18px; color:var(--text); font-weight:600; }
     /* Make the select match the dark UI and ensure options are readable */
-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23ecf6ff' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")
-    no-repeat right 10px center;
-  background-size: 14px 10px;
-  padding: 6px 38px 6px 12px;   /* room for arrow */
-  color: var(--text);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 8px;
-  font-size: 13px;
-  min-width: 150px;
-  cursor: pointer;
-}
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23ecf6ff' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")
+        no-repeat right 10px center;
+      background-size: 14px 10px;
+      padding: 6px 38px 6px 12px; 
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      font-size: 13px;
+      min-width: 150px;
+      cursor: pointer;
+    }
 
-/* Remove default IE dropdown arrow */
-select::-ms-expand { display: none; }
+    /* Remove default IE dropdown arrow */
+    select::-ms-expand { display: none; }
 
-/* Stronger focus ring for keyboard users */
-select:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
-  border-color: rgba(79,70,229,0.6);
-}
+    /* Stronger focus ring for keyboard users */
+    select:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+      border-color: rgba(79,70,229,0.6);
+    }
 
-/* Ensure option text is readable in dark theme (supported in most modern browsers) */
-select option {
-  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
-  color: var(--text);
-  padding: 6px 8px;
-}
+    /* Ensure option text is readable in dark theme (supported in most modern browsers) */
+    select option {
+      background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+      color: var(--text);
+      padding: 6px 8px;
+    }
 
-/* Hover/selected styling inside the native dropdown where supported */
-select option:checked,
-select option:hover {
-  background: linear-gradient(90deg, rgba(79,70,229,0.18), rgba(6,182,212,0.08));
-  color: var(--text);
-}
+    /* Hover/selected styling inside the native dropdown where supported */
+    select option:checked,
+    select option:hover {
+      background: linear-gradient(90deg, rgba(79,70,229,0.18), rgba(6,182,212,0.08));
+      color: var(--text);
+    }
 
+    /* Custom select: visually consistent and fully stylable */
+    .custom-select { position: relative; display:inline-block; min-width:150px; }
+    .cs-btn {
+      display:flex; align-items:center; justify-content:space-between;
+      gap:8px;
+      width:100%;
+      background: rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.06);
+      color:var(--text);
+      padding:8px 12px;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:13px;
+    }
+    .cs-arrow { margin-left:8px; opacity:0.92; font-size:12px; }
+
+    /* popup list */
+    .cs-list {
+      position:absolute;
+      right:0;
+      left:0;
+      margin:8px 0 0 0;
+      padding:6px 6px;
+      list-style:none;
+      border-radius:10px;
+      background: linear-gradient(180deg,var(--bg-2),var(--bg-1));
+      border:1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+      max-height:220px;
+      overflow:auto;
+      z-index:40;
+      display:none; /* hidden until open */
+    }
+    .custom-select[data-open="true"] .cs-list { display:block; }
+
+    /* items */
+    .cs-item {
+      padding:8px 10px;
+      color:var(--text);
+      border-radius:6px;
+      cursor:pointer;
+      font-size:14px;
+    }
+    .cs-item[aria-selected="true"] { background: linear-gradient(90deg, rgba(79,70,229,0.18), rgba(6,182,212,0.06)); }
+    .cs-item:hover { background: rgba(255,255,255,0.03); }
 
     /* Text area and output look consistent and aligned */
     textarea, .output-box {
@@ -217,12 +262,22 @@ select option:hover {
     <div class="panel" id="rightPanel">
       <div class="panel-header">
         <h3 id="targetLabel">Japanese</h3>
-        <select id="targetLang" aria-label="Target language">
-          <option value="ko" selected>Korean (KO)</option>
-          <option value="ja">Japanese (JA)</option>
-          <option value="zh">Chinese (ZH)</option>
-          <option value="es">Spanish (ES)</option>
-        </select>
+        <div class="custom-select" id="customSelect" data-open="false" aria-haspopup="listbox">
+          <button class="cs-btn" id="csBtn" aria-expanded="false" aria-controls="csList">
+            <span id="csLabel">Korean (KO)</span>
+            <span class="cs-arrow">▾</span>
+          </button>
+
+          <ul class="cs-list" id="csList" role="listbox" tabindex="-1" aria-hidden="true">
+            <li role="option" data-value="ko" class="cs-item" aria-selected="true">Korean (KO)</li>
+            <li role="option" data-value="ja" class="cs-item">Japanese (JA)</li>
+            <li role="option" data-value="zh" class="cs-item">Chinese (ZH)</li>
+            <li role="option" data-value="es" class="cs-item">Spanish (ES)</li>
+          </ul>
+
+          <!-- hidden value that your existing code can still read -->
+          <input type="hidden" id="targetLang" value="ko" />
+        </div>
       </div>
 
       <div id="outputText" class="output-box" aria-live="polite" role="region"></div>
@@ -377,6 +432,70 @@ select option:hover {
     }
 
     // ---- UI wiring ----
+    (function wireCustomSelect(){
+      const cs = document.getElementById('customSelect');
+      const btn = document.getElementById('csBtn');
+      const list = document.getElementById('csList');
+      const items = Array.from(list.querySelectorAll('.cs-item'));
+      const label = document.getElementById('csLabel');
+      const hidden = document.getElementById('targetLang');
+
+      function openClose(open){
+        cs.dataset.open = open ? "true" : "false";
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        list.setAttribute('aria-hidden', open ? 'false' : 'true');
+        if(open) list.focus();
+      }
+
+      // initial selection
+      const initial = hidden.value || 'ko';
+      const initialItem = items.find(i => i.dataset.value === initial);
+      if(initialItem){
+        items.forEach(it=>it.setAttribute('aria-selected','false'));
+        initialItem.setAttribute('aria-selected','true');
+        label.textContent = initialItem.textContent;
+      }
+
+      // toggle on button
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openClose(cs.dataset.open !== "true");
+      });
+
+      // click on item
+      items.forEach(it=>{
+        it.addEventListener('click', (e)=>{
+          const v = it.dataset.value;
+          // update UI
+          items.forEach(x=>x.setAttribute('aria-selected','false'));
+          it.setAttribute('aria-selected','true');
+          hidden.value = v;
+          label.textContent = it.textContent;
+          openClose(false);
+          // trigger your existing change logic
+          TARGET = v;
+          if(typeof syncHeadings === 'function') syncHeadings();
+          document.getElementById('outputText').textContent = '';
+        });
+      });
+
+      // close when clicking outside
+      document.addEventListener('click', ()=> openClose(false));
+      // keyboard: basic support
+      btn.addEventListener('keydown', (e)=>{
+        if(e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault(); openClose(true);
+        }
+      });
+      list.addEventListener('keydown', (e)=>{
+        const idx = items.findIndex(i=>i.getAttribute('aria-selected')==='true');
+        if(e.key === 'ArrowDown') { e.preventDefault(); const next = items[(idx+1)%items.length]; next.focus(); }
+        if(e.key === 'ArrowUp') { e.preventDefault(); const prev = items[(idx-1+items.length)%items.length]; prev.focus(); }
+        if(e.key === 'Enter') { document.activeElement.click(); }
+        if(e.key === 'Escape') { openClose(false); btn.focus(); }
+      });
+    })();
+
     const pageTitle   = document.getElementById("pageTitle");
 
     function syncHeadings() {
@@ -415,6 +534,8 @@ select option:hover {
 
     // init
     syncHeadings();
+    
   </script>
+  
 </body>
 </html>
