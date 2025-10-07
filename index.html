@@ -49,21 +49,28 @@
     ];
 
     async function ltTranslate(text) {
+      const payload = { q: text, source: SOURCE, target: TARGET, format: "text" };
       let lastErr;
       for (const url of LT_ENDPOINTS) {
-        try {
-          const r = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ q: text, source: SOURCE, target: TARGET, format: "text" })
-          });
-          if (!r.ok) { lastErr = new Error(url + " -> " + r.status); continue; }
-          const data = await r.json();
-          if (data && data.translatedText) return data.translatedText;
-        } catch (e) { lastErr = e; }
+        let delay = 250;
+        for (let i = 0; i < 3; i++) {
+          try {
+            const r = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+            if (r.status === 429) { await new Promise(s => setTimeout(s, delay)); delay *= 2; continue; }
+            if (!r.ok) throw new Error(url + " -> " + r.status);
+            const data = await r.json();
+            if (data?.translatedText) return data.translatedText;
+            throw new Error("No translatedText");
+          } catch (e) { lastErr = e; await new Promise(s => setTimeout(s, delay)); delay *= 2; }
+        }
       }
       throw lastErr || new Error("LibreTranslate failed");
     }
+
 
     // Provider 2: MyMemory (free, CORS-friendly, lighter quality but works)
     async function myMemoryTranslate(text) {
@@ -101,7 +108,7 @@
     // Smart single-phrase translate with fallback + tiny cache
     const cache = new Map();
     async function translateOne(text) {
-      const key = SOURCE + "→" + TARGET + "::" + text;
+      const key = `${SOURCE}→${TARGET}::${text.normalize('NFC')}`;
       if (cache.has(key)) return cache.get(key);
       try {
         const res = await ltTranslate(text);
@@ -147,8 +154,8 @@
         const node = walker.currentNode;
 
         if (node.nodeType === Node.TEXT_NODE) {
-          const s = node.textContent.trim();
-          if (s) textNodes.push({ node, text: s });
+          const raw = node.textContent;
+          if (/\S/.test(raw)) textNodes.push({ node, text: raw });
         }
 
         if (node.nodeType === Node.ELEMENT_NODE) {
