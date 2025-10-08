@@ -21,7 +21,7 @@
       --bg-2: #132032;         /* subtle gradient */
       --card: rgba(255,255,255,0.04);
       --card-2: rgba(255,255,255,0.03);
-      --muted: rgba(255,255,255,0.65);
+      --muted: rgba(255,255,255,0.65); 
       --text: #ecf6ff;
       --accent-1: #4f46e5;     /* indigo */
       --accent-2: #06b6d4;     /* cyan */
@@ -254,14 +254,30 @@
 </head>
 <body>
   <h1>HTML Translator</h1>
-  <div class="subtitle">Left stays English. Choose a target language on the right - fast, dark UI.</div>
+  <div class="subtitle">Choose a target language on the left and right.</div>
 
   <div class="container">
     <div class="panel" id="leftPanel">
       <div class="panel-header">
-        <h3>English</h3>
-        <div class="muted">Source</div>
+        <h3 id="sourceLabel">English</h3>
+        <div class="custom-select" id="sourceSelect" data-open="false" aria-haspopup="listbox">
+          <button class="cs-btn" id="sourceBtn" aria-expanded="false" aria-controls="sourceList">
+            <span id="sourceCsLabel">English (EN)</span>
+            <span class="cs-arrow">&#9662;</span>
+          </button>
+
+          <ul class="cs-list" id="sourceList" role="listbox" tabindex="-1" aria-hidden="true">
+            <li role="option" data-value="en" class="cs-item" aria-selected="true" tabindex="0">English (EN)</li>
+            <li role="option" data-value="ko" class="cs-item" tabindex="0">Korean (KO)</li>
+            <li role="option" data-value="ja" class="cs-item" tabindex="0">Japanese (JA)</li>
+            <li role="option" data-value="zh" class="cs-item" tabindex="0">Chinese (ZH)</li>
+            <li role="option" data-value="es" class="cs-item" tabindex="0">Spanish (ES)</li>
+          </ul>
+
+          <input type="hidden" id="sourceLang" value="en" />
+        </div>
       </div>
+
 
       <textarea id="inputText" placeholder="Paste your HTML here..."></textarea>
 
@@ -280,6 +296,7 @@
           </button>
 
           <ul class="cs-list" id="csList" role="listbox" tabindex="-1" aria-hidden="true">
+            <li role="option" data-value="en" class="cs-item" tabindex="0">English (EN)</li>
             <li role="option" data-value="ko" class="cs-item" aria-selected="true" tabindex="0">Korean (KO)</li>
             <li role="option" data-value="ja" class="cs-item" tabindex="0">Japanese (JA)</li>
             <li role="option" data-value="zh" class="cs-item" tabindex="0">Chinese (ZH)</li>
@@ -302,8 +319,8 @@
   <div class="footer">Tip: long inputs are chunked and cached to reduce rate-limit failures.</div>
 
   <script>
-    const SOURCE_LANG = "en";
-    const LANG_LABELS = { ko: "Korean", ja: "Japanese", zh: "Chinese", es: "Spanish" };
+    let sourceLang = document.getElementById("sourceLang").value || "en";
+    const LANG_LABELS = { en: "English", ko: "Korean", ja: "Japanese", zh: "Chinese", es: "Spanish" };
     const TRANSLATABLE_ATTRIBUTES = ["alt", "placeholder", "title", "aria-label"];
     const LIBRE_TRANSLATE_ENDPOINTS = [
       "https://libretranslate.com/translate",
@@ -336,8 +353,9 @@
     }
 
     function updateDocumentTitle(label) {
-      document.title = `HTML Translator (EN -> ${label.slice(0, 2).toUpperCase()})`;
+      document.title = `HTML Translator (${sourceLang.toUpperCase()} → ${label.slice(0, 2).toUpperCase()})`;
     }
+
 
     function updateCustomSelectState(lang) {
       if (!customItems.length) {
@@ -379,7 +397,7 @@
     }
 
     async function ltTranslate(text) {
-      const payload = { q: text, source: SOURCE_LANG, target: targetLang, format: "text" };
+      const payload = { q: text, source: sourceLang, target: targetLang, format: "text" };
       let lastErr;
 
       for (const url of LIBRE_TRANSLATE_ENDPOINTS) {
@@ -421,7 +439,7 @@
     }
 
     async function myMemoryTranslate(text) {
-      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${SOURCE_LANG}|${targetLang}&mtonly=1`;
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}&mtonly=1`;
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -456,7 +474,7 @@
 
     const cache = new Map();
     async function translateOne(text) {
-      const cacheKey = `${SOURCE_LANG}->${targetLang}::${text.normalize("NFC")}`;
+      const cacheKey = `${sourceLang}->${targetLang}::${text.normalize("NFC")}`;
       if (cache.has(cacheKey)) {
         return cache.get(cacheKey);
       }
@@ -599,6 +617,40 @@
       });
     }
 
+    function wireSourceSelect() {
+      const srcSelect = document.getElementById("sourceSelect");
+      const srcBtn = document.getElementById("sourceBtn");
+      const srcList = document.getElementById("sourceList");
+      const srcLabel = document.getElementById("sourceCsLabel");
+      const srcHidden = document.getElementById("sourceLang");
+      const srcItems = Array.from(srcList.querySelectorAll(".cs-item"));
+
+      function setSrcOpen(open) {
+        const isOpen = Boolean(open);
+        srcSelect.dataset.open = isOpen ? "true" : "false";
+        srcBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        srcList.setAttribute("aria-hidden", isOpen ? "false" : "true");
+      }
+
+      srcBtn.addEventListener("click", e => {
+        e.stopPropagation();
+        setSrcOpen(srcSelect.dataset.open !== "true");
+      });
+
+      document.addEventListener("click", () => setSrcOpen(false));
+
+      srcItems.forEach(item => {
+        item.addEventListener("click", e => {
+          e.preventDefault();
+          sourceLang = item.dataset.value;
+          srcHidden.value = sourceLang;
+          srcLabel.textContent = item.textContent;
+          document.getElementById("sourceLabel").textContent = item.textContent.split("(")[0].trim();
+          setSrcOpen(false);
+        });
+      });
+    }
+
     async function handleTranslate() {
       const html = elements.input.value.trim();
       if (!html) {
@@ -630,6 +682,7 @@
     elements.hiddenTarget.addEventListener("change", event => updateTarget(event.target.value));
 
     wireCustomSelect();
+    wireSourceSelect();
     updateTarget(targetLang);
   </script>
   
